@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import {loginSchema} from "@lib/validations";
+import { generateToken } from "@/lib/auth";
 
 
 export async function POST(request){
@@ -44,7 +44,7 @@ export async function POST(request){
         )
     }
 
-    const token = jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"7d"});
+    const token = generateToken(user._id);
 
 
     const response = NextResponse.json({
