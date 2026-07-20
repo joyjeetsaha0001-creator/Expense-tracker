@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import { registerSchema } from "@/lib/validations";
+import { ZodError } from "zod";
 
 
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { name, email, password } = body;
+        const validData = registerSchema.parse(body);
+        const { name, email, password } = validData;
 
         await connectDB();
 
@@ -43,6 +46,18 @@ export async function POST(request) {
 
     }
     catch (error) {
+
+        if(error instanceof ZodError){
+            return NextResponse.json(
+                {
+                    errors:error.flatten().fieldErrors,
+                },
+                {
+                    status:400
+                }
+            )
+        }
+
         console.log(error);
 
         return NextResponse.json(
