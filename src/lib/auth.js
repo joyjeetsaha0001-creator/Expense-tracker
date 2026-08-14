@@ -23,7 +23,7 @@ export function verifyToken(token){
 export async function getCurrentUser(){
     try{
         const cookieStore=await cookies();
-        const token=cookiStore.get("token")?.value;
+        const token=cookieStore.get("token")?.value;
 
         if(!token){
             return null;
@@ -45,5 +45,6 @@ export async function getCurrentUser(){
     }
     catch(error){
         console.log("Get Current User Error:",error);
+        return null;
     }
 }
