@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/* eslint-disable @next/next/no-img-element */
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { User, Mail, Globe, Image as ImageIcon } from "lucide-react";
+import { User } from "lucide-react";
 
 import {
   Card,
@@ -25,13 +26,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  async function fetchProfile() {
+  const fetchProfile = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/auth/me");
       if (data?.user) {
         setUser(data.user);
@@ -42,7 +38,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   async function updateProfile(e) {
     e.preventDefault();

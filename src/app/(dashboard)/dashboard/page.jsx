@@ -22,7 +22,6 @@ export default function DashboardPage() {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/dashboard");
       setStats({
         balance: data.balance || 0,

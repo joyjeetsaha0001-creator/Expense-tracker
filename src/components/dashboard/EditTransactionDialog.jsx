@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
@@ -30,38 +30,31 @@ export default function EditTransactionDialog({ transaction, onSuccess }) {
     note: "",
   });
 
-  useEffect(() => {
-    if (transaction) {
-      const formattedDate = transaction.date
-        ? new Date(transaction.date).toISOString().split("T")[0]
-        : "";
+  async function handleOpenChange(isOpen) {
+    setOpen(isOpen);
+    if (isOpen) {
+      if (transaction) {
+        setFormData({
+          title: transaction.title || "",
+          amount: transaction.amount || "",
+          type: transaction.type || "expense",
+          category:
+            typeof transaction.category === "object"
+              ? transaction.category?._id || ""
+              : transaction.category || "",
+          date: transaction.date
+            ? new Date(transaction.date).toISOString().split("T")[0]
+            : "",
+          note: transaction.note || "",
+        });
+      }
 
-      setFormData({
-        title: transaction.title || "",
-        amount: transaction.amount || "",
-        type: transaction.type || "expense",
-        category:
-          typeof transaction.category === "object"
-            ? transaction.category?._id || ""
-            : transaction.category || "",
-        date: formattedDate,
-        note: transaction.note || "",
-      });
-    }
-  }, [transaction]);
-
-  useEffect(() => {
-    if (open) {
-      fetchCategories();
-    }
-  }, [open]);
-
-  async function fetchCategories() {
-    try {
-      const { data } = await api.get("/categories");
-      setCategories(data.categories || []);
-    } catch (err) {
-      console.error("Failed to load categories:", err);
+      try {
+        const { data } = await api.get("/categories");
+        setCategories(data.categories || []);
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
     }
   }
 
@@ -97,11 +90,11 @@ export default function EditTransactionDialog({ transaction, onSuccess }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
           <button
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
             title="Edit Transaction"
           >
             <Pencil size={18} />

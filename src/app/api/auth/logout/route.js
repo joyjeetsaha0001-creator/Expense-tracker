@@ -11,5 +11,15 @@ export async function POST() {
     path: "/",
   });
 
+  response.cookies.set("next-auth.session-token", "", {
+    maxAge: 0,
+    path: "/",
+  });
+
+  response.cookies.set("__Secure-next-auth.session-token", "", {
+    maxAge: 0,
+    path: "/",
+  });
+
   return response;
 }

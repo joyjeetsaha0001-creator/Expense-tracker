@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/formatDate";
@@ -27,15 +27,10 @@ export default function ReportsPage() {
   const [transactions, setTransactions] = useState([]);
   const [currency, setCurrency] = useState("INR");
   const [loading, setLoading] = useState(true);
-  const [timeframe, setTimeframe] = useState("all"); // 'this_month', 'last_month', 'ytd', 'all'
+  const [timeframe, setTimeframe] = useState("all");
 
-  useEffect(() => {
-    fetchReportData();
-  }, []);
-
-  async function fetchReportData() {
+  const fetchReportData = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/dashboard");
       setTransactions(data.transactions || []);
       setCurrency(data.currency || "INR");
@@ -45,7 +40,11 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
 
   // Filter transactions based on timeframe
   const filteredTransactions = transactions.filter((item) => {

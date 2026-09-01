@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Settings, Globe, Shield, User, Trash2 } from "lucide-react";
+import { Settings, Globe, Shield } from "lucide-react";
 
 import {
   Card,
@@ -22,13 +22,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchUserSettings();
-  }, []);
-
-  async function fetchUserSettings() {
+  const fetchUserSettings = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/auth/me");
       if (data?.user) {
         setUser(data.user);
@@ -39,7 +34,11 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchUserSettings();
+  }, [fetchUserSettings]);
 
   async function handleSaveCurrency(e) {
     e.preventDefault();

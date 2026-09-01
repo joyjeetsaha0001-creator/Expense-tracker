@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState, useCallback } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import api from "@/lib/api";
 import { toast } from "sonner";
 
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function TransactionForm({ onSuccess }) {
-  const { register, handleSubmit, reset, watch, setValue } = useForm({
+  const { register, handleSubmit, reset, control } = useForm({
     defaultValues: {
       title: "",
       amount: "",
@@ -22,13 +22,9 @@ export default function TransactionForm({ onSuccess }) {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const selectedType = watch("type");
+  const selectedType = useWatch({ control, name: "type" });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  async function fetchCategories() {
+  const fetchCategories = useCallback(async () => {
     try {
       const { data } = await api.get("/categories");
       setCategories(data.categories || []);
@@ -36,9 +32,12 @@ export default function TransactionForm({ onSuccess }) {
       console.error(error);
       toast.error("Failed to load categories");
     }
-  }
+  }, []);
 
-  // Filter categories by selected type if category has a type property
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   const filteredCategories = categories.filter(
     (cat) => !cat.type || cat.type === selectedType
   );

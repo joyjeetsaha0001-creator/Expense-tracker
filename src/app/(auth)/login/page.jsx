@@ -9,6 +9,7 @@ import api from "@/lib/api";
 import AuthCard from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input.jsx";
 import { Button } from "@/components/ui/Button";
+import OAuthButtons from "@/components/auth/OAuthButtons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +20,6 @@ export default function LoginPage() {
   });
 
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
 
   function handleChange(e) {
@@ -57,7 +57,7 @@ export default function LoginPage() {
     >
       <form
         onSubmit={handleSubmit}
-        className="space-y-5"
+        className="space-y-4"
       >
         <div>
           <label className="text-sm font-medium">
@@ -103,11 +103,13 @@ export default function LoginPage() {
           {loading ? "Logging in..." : "Login"}
         </Button>
 
-        <p className="text-center text-sm text-gray-600">
-          Don't have an account?{" "}
+        <OAuthButtons />
+
+        <p className="text-center text-sm text-gray-600 pt-2">
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
-            className="text-blue-600 hover:underline"
+            className="text-blue-600 font-semibold hover:underline"
           >
             Register
           </Link>

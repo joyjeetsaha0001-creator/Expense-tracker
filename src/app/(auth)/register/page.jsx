@@ -9,6 +9,7 @@ import api from "@/lib/api";
 import AuthCard from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import OAuthButtons from "@/components/auth/OAuthButtons";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -82,10 +83,10 @@ export default function RegisterPage() {
     >
       <form
         onSubmit={handleSubmit}
-        className="space-y-5"
+        className="space-y-4"
       >
         <div>
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-1 text-sm font-medium">
             Full Name
           </label>
 
@@ -99,7 +100,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-1 text-sm font-medium">
             Email
           </label>
 
@@ -113,7 +114,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-1 text-sm font-medium">
             Password
           </label>
 
@@ -127,7 +128,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-1 text-sm font-medium">
             Confirm Password
           </label>
 
@@ -154,7 +155,9 @@ export default function RegisterPage() {
           {loading ? "Creating Account..." : "Register"}
         </Button>
 
-        <div className="text-center text-sm">
+        <OAuthButtons />
+
+        <div className="text-center text-sm pt-2">
           Already have an account?{" "}
           <Link
             href="/login"

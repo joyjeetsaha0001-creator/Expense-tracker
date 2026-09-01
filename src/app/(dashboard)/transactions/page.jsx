@@ -28,7 +28,6 @@ export default function TransactionsPage() {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/transactions");
       setTransactions(data.transactions || []);
 

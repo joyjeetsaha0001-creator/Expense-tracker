@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { FolderOpen, Plus, Trash2, Pencil, Check } from "lucide-react";
@@ -29,9 +29,8 @@ export default function CategoriesPage() {
   const [editColor, setEditColor] = useState("#3B82F6");
   const [loading, setLoading] = useState(true);
 
-  async function fetchCategories() {
+  const fetchCategories = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/categories");
       setCategories(data.categories || []);
     } catch (error) {
@@ -40,11 +39,11 @@ export default function CategoriesPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   async function addCategory(e) {
     e.preventDefault();

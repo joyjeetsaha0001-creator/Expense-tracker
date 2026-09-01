@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   ReceiptText,
@@ -17,7 +18,7 @@ import {
 
 import api from "@/lib/api";
 
-const menuItems = [
+export const menuItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
@@ -62,6 +63,11 @@ export default function Sidebar() {
   async function handleLogout() {
     try {
       await api.post("/auth/logout");
+      try {
+        await signOut({ redirect: false });
+      } catch (err) {
+        // Ignore next-auth error if session was not active
+      }
       toast.success("Logged out successfully");
       router.push("/login");
       router.refresh();
@@ -72,7 +78,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 shadow-xs min-h-screen flex flex-col justify-between shrink-0">
+    <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 shadow-xs min-h-screen flex-col justify-between shrink-0">
       <div>
         <div className="p-6 border-b border-gray-100">
           <Link href="/dashboard" className="flex items-center gap-3">
@@ -116,7 +122,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-gray-100">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition"
+          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition cursor-pointer"
         >
           <LogOut size={18} />
           Logout

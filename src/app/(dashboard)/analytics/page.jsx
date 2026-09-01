@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { toast } from "sonner";
@@ -34,13 +34,8 @@ export default function AnalyticsPage() {
   const [currency, setCurrency] = useState("INR");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     try {
-      setLoading(true);
       const { data } = await api.get("/transactions");
       setTransactions(data.transactions || []);
 
@@ -54,7 +49,11 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const income = transactions
     .filter((t) => t.type === "income")
