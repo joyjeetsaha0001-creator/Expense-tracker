@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import Transaction from "@/models/Transaction";
+import Transaction from "@/models/Transactions.js";
 import Category from "@/models/Category";
 
 import { connectDB } from "@/lib/mongodb";
@@ -23,42 +23,42 @@ export async function PUT(request, { params }) {
       );
     }
 
+    const { id } = await params;
+
     const body = await request.json();
 
-    const data = transactionSchema.parse(body);
+    const transactionData = transactionSchema.parse(body);
 
-    const transaction = await Transaction.findOne({
-      _id: params.id,
-      user: user._id,
-    });
-
-    if (!transaction) {
-      return NextResponse.json(
-        {
-          message: "Transaction not found",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
-    const category = await Category.findById(data.category);
+    const category = await Category.findById(transactionData.category);
 
     if (!category) {
       return NextResponse.json(
-        {
-          message: "Category not found",
-        },
-        {
-          status: 404,
-        }
+        { message: "Category not found" },
+        { status: 404 }
       );
     }
 
-    Object.assign(transaction, data);
+    const transaction = await Transaction.findOneAndUpdate(
+      {
+        _id: id,
+        user: user._id,
+      },
+      {
+        ...transactionData,
+        user: user._id,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-    await transaction.save();
+    if (!transaction) {
+      return NextResponse.json(
+        { message: "Transaction not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(
       {
@@ -71,27 +71,30 @@ export async function PUT(request, { params }) {
     );
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        {
-          errors: error.flatten().fieldErrors,
-        },
-        {
-          status: 400,
-        }
-      );
+        console.error("ZOD ERROR:", error.flatten().fieldErrors);
+
+        return NextResponse.json(
+            {
+                message: "Validation failed",
+                errors: error.flatten().fieldErrors
+            },
+            {
+                status: 400
+            }
+        );
     }
 
-    console.error(error);
+    console.error("Update Transaction Error:", error);
 
     return NextResponse.json(
-      {
-        message: "Internal Server Error",
-      },
-      {
-        status: 500,
-      }
+        {
+            message: "Internal Server Error"
+        },
+        {
+            status: 500
+        }
     );
-  }
+}
 }
 
 
@@ -104,28 +107,22 @@ export async function DELETE(request, { params }) {
 
     if (!user) {
       return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-        }
+        { message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
+    const { id } = await params;
+
     const transaction = await Transaction.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       user: user._id,
     });
 
     if (!transaction) {
       return NextResponse.json(
-        {
-          message: "Transaction not found",
-        },
-        {
-          status: 404,
-        }
+        { message: "Transaction not found" },
+        { status: 404 }
       );
     }
 
@@ -139,7 +136,7 @@ export async function DELETE(request, { params }) {
       }
     );
   } catch (error) {
-    console.error(error);
+    console.error("Delete Transaction Error:", error);
 
     return NextResponse.json(
       {

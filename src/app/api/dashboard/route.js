@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Transaction from "@/models/Transaction";
+import Transaction from "@/models/Transactions.js";
 import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 

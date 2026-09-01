@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import Category from "@/models/Category";
 import { registerSchema } from "@/lib/validations";
 import { ZodError } from "zod";
 
@@ -29,13 +30,52 @@ export async function POST(request) {
 
         const hashedPassword =await bcrypt.hash(password,10);
 
-        const user= await user.create({
+        const user= await User.create({
             name,email,password:hashedPassword
         });
 
+        await Category.insertMany([
+  {
+    name: "Food",
+    type: "expense",
+    color: "#ef4444",
+    user: user._id,
+  },
+  {
+    name: "Shopping",
+    type: "expense",
+    color: "#3b82f6",
+    user: user._id,
+  },
+  {
+    name: "Travel",
+    type: "expense",
+    color: "#f97316",
+    user: user._id,
+  },
+  {
+    name: "Bills",
+    type: "expense",
+    color: "#8b5cf6",
+    user: user._id,
+  },
+  {
+    name: "Salary",
+    type: "income",
+    color: "#22c55e",
+    user: user._id,
+  },
+  {
+    name: "Freelance",
+    type: "income",
+    color: "#06b6d4",
+    user: user._id,
+  },
+]);
+
         await user.save();
 
-        return NextResponse(
+        return NextResponse.json(
             {
                 message:"User created succesfully"
             },

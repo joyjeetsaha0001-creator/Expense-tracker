@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import Transaction from "@/models/Transaction";
+import Transaction from "@/models/Transactions.js";
 import Category from "@/models/Category";
 
 import { connectDB } from "@/lib/mongodb";
@@ -64,6 +64,8 @@ export async function POST(request) {
 
         const body=await request.json();
         const transaction=transactionSchema.parse(body);
+
+        
 
         const category=await Category.findById(transaction.category);
         if(!category){

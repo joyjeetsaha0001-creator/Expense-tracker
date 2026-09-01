@@ -1,3 +1,10 @@
+import { NextResponse } from "next/server";
+
+import Category from "@/models/Category";
+import { connectDB } from "@/lib/mongodb";
+import { getCurrentUser } from "@/lib/auth";
+
+
 export async function PUT(request, { params }) {
   await connectDB();
 
@@ -32,22 +39,54 @@ export async function PUT(request, { params }) {
 
 
 export async function DELETE(request, { params }) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  const user = await getCurrentUser();
+    const user = await getCurrentUser();
 
-  if (!user)
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const { id } = await params;
+
+    const category = await Category.findOneAndDelete({
+      _id: id,
+      user: user._id,
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        {
+          message: "Category not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Category deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Category Error:", error);
+
     return NextResponse.json(
-      { message: "Unauthorized" },
-      { status: 401 }
+      {
+        message: "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
     );
-
-  await Category.findOneAndDelete({
-    _id: params.id,
-    user: user._id,
-  });
-
-  return NextResponse.json({
-    success: true,
-  });
+  }
 }

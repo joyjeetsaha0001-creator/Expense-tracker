@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import { loginSchema } from "@lib/validations";
+import { loginSchema } from "@/lib/validations";
 import { generateToken } from "@/lib/auth";
 
 
@@ -49,7 +49,7 @@ export async function POST(request) {
 
 
         const response = NextResponse.json({
-            message: "Login successful"
+            message: "Login successful",
         });
 
         response.cookies.set("token", token, {
@@ -59,6 +59,8 @@ export async function POST(request) {
             maxAge: 60 * 60 * 24 * 7,
             path: "/",
         });
+
+        return response;
     }
     catch (error) {
 

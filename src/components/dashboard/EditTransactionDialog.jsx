@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Button } from "@/components/ui/Button";
+
 export default function EditTransactionDialog({
   transaction,
 }) {
@@ -20,24 +22,36 @@ export default function EditTransactionDialog({
   async function updateTransaction() {
     try {
       await api.put(`/transactions/${transaction._id}`, {
-        ...transaction,
-        title,
-        amount,
+        title: title,
+        amount: Number(amount),
+        type: transaction.type,
+        category:
+          typeof transaction.category === "object"
+            ? transaction.category._id
+            : transaction.category,
+        note: transaction.note || "",
+        date: transaction.date,
       });
 
       window.location.reload();
     } catch (err) {
-      console.error(err);
+      console.error("Update Transaction Error:", err);
+
+      if (err.response) {
+        console.error("Server response:", err.response.data);
+      }
     }
   }
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <button className="text-blue-500">
-          Edit
-        </button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <button className="text-blue-500">
+            Edit
+          </button>
+        }
+      />
 
       <DialogContent>
         <DialogHeader>
@@ -47,6 +61,7 @@ export default function EditTransactionDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+
           <input
             className="border p-2 rounded w-full"
             value={title}
@@ -64,12 +79,13 @@ export default function EditTransactionDialog({
             }
           />
 
-          <button
+          <Button
             onClick={updateTransaction}
-            className="bg-black text-white px-4 py-2 rounded"
+            className="w-full"
           >
             Update
-          </button>
+          </Button>
+
         </div>
       </DialogContent>
     </Dialog>
