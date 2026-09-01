@@ -4,39 +4,52 @@ import Category from "@/models/Category";
 import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 
-
 export async function PUT(request, { params }) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  const user = await getCurrentUser();
+    const user = await getCurrentUser();
 
-  if (!user)
-    return NextResponse.json(
-      { message: "Unauthorized" },
-      { status: 401 }
+    if (!user) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+
+    const category = await Category.findOneAndUpdate(
+      {
+        _id: id,
+        user: user._id,
+      },
+      body,
+      {
+        new: true,
+      }
     );
 
-  const body = await request.json();
-
-  const category = await Category.findOneAndUpdate(
-    {
-      _id: params.id,
-      user: user._id,
-    },
-    body,
-    {
-      new: true,
+    if (!category) {
+      return NextResponse.json(
+        { message: "Category not found" },
+        { status: 404 }
+      );
     }
-  );
 
-  return NextResponse.json({
-    success: true,
-    category,
-  });
+    return NextResponse.json({
+      success: true,
+      category,
+    });
+  } catch (error) {
+    console.error("Update Category Error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
-
-
-
 
 export async function DELETE(request, { params }) {
   try {
@@ -46,12 +59,8 @@ export async function DELETE(request, { params }) {
 
     if (!user) {
       return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-        }
+        { message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
@@ -64,12 +73,8 @@ export async function DELETE(request, { params }) {
 
     if (!category) {
       return NextResponse.json(
-        {
-          message: "Category not found",
-        },
-        {
-          status: 404,
-        }
+        { message: "Category not found" },
+        { status: 404 }
       );
     }
 
@@ -81,12 +86,8 @@ export async function DELETE(request, { params }) {
     console.error("Delete Category Error:", error);
 
     return NextResponse.json(
-      {
-        message: "Internal Server Error",
-      },
-      {
-        status: 500,
-      }
+      { message: "Internal Server Error" },
+      { status: 500 }
     );
   }
 }

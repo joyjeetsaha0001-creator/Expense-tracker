@@ -3,22 +3,24 @@ import Transaction from "@/models/Transactions.js";
 import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
 
-
 export async function GET() {
   try {
     await connectDB();
 
     const user = await getCurrentUser();
 
-    if (!user)
+    if (!user) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
       );
+    }
 
     const transactions = await Transaction.find({
       user: user._id,
-    });
+    })
+      .populate("category")
+      .sort({ date: -1 });
 
     let income = 0;
     let expense = 0;
@@ -32,6 +34,14 @@ export async function GET() {
     });
 
     return NextResponse.json({
+      success: true,
+      currency: user.currency || "INR",
+      user: {
+        name: user.name,
+        email: user.email,
+        currency: user.currency || "INR",
+        avatar: user.avatar,
+      },
       income,
       expense,
       balance: income - expense,
@@ -39,13 +49,10 @@ export async function GET() {
       transactions,
     });
   } catch (error) {
+    console.error("Dashboard API Error:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
     );
   }
 }
-
-
-
-

@@ -1,33 +1,37 @@
-import { Timestamp } from "mongodb";
 import mongoose from "mongoose";
-import { required } from "zod/mini";
 
-const categorySchema=mongoose.Schema({
-    
-    name:{
-        type:String,
-        required:true,
-        trim:true
+const categorySchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    icon:{
-        type:String,
-        default:"Circle"
+    type: {
+      type: String,
+      enum: ["income", "expense"],
+      default: "expense",
     },
-    color:{
-        type:String,
-        default:"#3B82F6"
+    icon: {
+      type: String,
+      default: "Circle",
     },
-    user:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
-    }
-},
-{
-    timestamps:true
-}
+    color: {
+      type: String,
+      default: "#3B82F6",
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-const Category =mongoose.models.Category || mongoose.model("Category", categorySchema);
+const Category =
+  mongoose.models.Category || mongoose.model("Category", categorySchema);
 
 export default Category;
